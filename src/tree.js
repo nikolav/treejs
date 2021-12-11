@@ -25,9 +25,7 @@ const tree = (function (none) {
   const __CACHEID__ = "___";
 
   class node {
-
     constructor(config = {}) {
-
       const conf = { ...nodeInitDefaults_, ...config };
       const id = hash_.random();
       this[__CACHEID__] = id;
@@ -40,9 +38,7 @@ const tree = (function (none) {
         value: conf.value,
       };
 
-      if (none !== conf.id) 
-        this.id(conf.id);
-      
+      if (none !== conf.id) this.id(conf.id);
     }
 
     id = (id_) => {

@@ -1,9 +1,8 @@
-
 module.exports.random = () => {
   return "" + Math.random();
 };
 module.exports.randomer = () => {
-  return "" + Math.random() +"-"+ Math.random();
+  return "" + Math.random() + "-" + Math.random();
 };
 
 //eof

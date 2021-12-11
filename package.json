@@ -1,6 +1,6 @@
 {
-  "name": "66-tree-nodejs",
-  "version": "1.0.0",
+  "name": "nikolav-tree",
+  "version": "1.0.1",
   "description": "admin.url=https://nikolav.rs/",
   "main": "index.js",
   "scripts": {
