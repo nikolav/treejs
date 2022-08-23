@@ -7,8 +7,8 @@
  * public domain
  */
 
-const hash_ = require("./src/tree-hashgen");
-
+const { nanoid } = require("nanoid");
+//
 const push_ = Function.prototype.call.bind(Array.prototype.push);
 const has_ = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
 
@@ -27,7 +27,7 @@ const tree = (function (none) {
   class node {
     constructor(config = {}) {
       const conf = { ...nodeInitDefaults_, ...config };
-      const id = hash_.random();
+      const id = nanoid();
       this[__CACHEID__] = id;
 
       cache_[id] = {
@@ -255,4 +255,4 @@ const tree = (function (none) {
   }
 })();
 
-module.exports = tree;
+export default tree;

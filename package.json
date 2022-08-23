@@ -1,7 +1,7 @@
 {
   "name": "nikolav-tree",
-  "version": "1.0.2",
-  "description": "admin.url=https://nikolav.rs/",
+  "version": "1.1.0",
+  "description": "https://nikolav.rs/",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/nikolav/treejs/issues"
   },
-  "homepage": "https://github.com/nikolav/treejs#readme"
+  "homepage": "https://github.com/nikolav/treejs#readme",
+  "dependencies": {
+    "nanoid": "^4.0.0"
+  }
 }
