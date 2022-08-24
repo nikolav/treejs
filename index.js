@@ -8,9 +8,13 @@
  */
 
 import { nanoid } from "nanoid";
+const idGen = () => nanoid();
+// const idGen = () => Math.random();
+
 //
 const push_ = Function.prototype.call.bind(Array.prototype.push);
 const has_ = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
+const forEach = Function.prototype.call.bind(Array.prototype.forEach);
 
 const tree = (function (none) {
   const cache_ = {};
@@ -27,7 +31,7 @@ const tree = (function (none) {
   class node {
     constructor(config = {}) {
       const conf = { ...nodeInitDefaults_, ...config };
-      const id = nanoid();
+      const id = idGen();
       this[__CACHEID__] = id;
 
       cache_[id] = {
@@ -211,6 +215,21 @@ const tree = (function (none) {
       //
       return p.reverse();
     };
+    // travrse down, exit @onBreak
+    walk = (callback, thisContext, onBreak = false) => {
+      const node = this;
+      walk_(node, { callback, thisContext, onBreak });
+      return node;
+    };
+    // get first descendant that passes .callback
+    find = (callback, thisContext, onBreak = false) => {
+      //
+      const match = { node: null };
+      this.walk(find_, { match, callback, thisContext }, onBreak);
+
+      return match.node;
+    };
+    //
   }
 
   class tree extends node {
@@ -226,6 +245,25 @@ const tree = (function (none) {
     };
     byid = (id) => {
       return getidcache_(this)[id] || null;
+    };
+
+    /*
+    {
+      fields..,
+      children[]?
+    }
+    */
+    json = (jsonObject) => {
+      const root = { children: [jsonObject] };
+      const route = {
+        root: this,
+        node: this,
+        prev: [],
+      };
+      //
+      traverseTree_(root, load_, route);
+      //
+      return this;
     };
   }
 
@@ -263,6 +301,69 @@ const tree = (function (none) {
   function getidcache_(treeNode) {
     return idcache_[treeNode[__CACHEID__]];
   }
+  // function loop_(list, callback, context, onBreak = false) {
+  //   for (
+  //     let i = 0, len = list.length;
+  //     i < len && onBreak !== callback.call(context, list[i], i, list);
+  //     i++
+  //   );
+  //   //
+  //   return list;
+  // }
+  function walk_(node, context) {
+    let nextNode;
+    const { callback, onBreak, thisContext } = context;
+    //
+    if (onBreak !== callback.call(thisContext, node)) {
+      nextNode = 0 < node.len() ? node.eq(0) : node.next();
+      if (nextNode) walk_(nextNode, context);
+    }
+  }
+  function find_(node) {
+    const { match, callback, thisContext } = this;
+    if (true === callback.call(thisContext, node)) {
+      match.node = node;
+      return false;
+    }
+  }
+  //
+  function traverseTree_(node, callback, context = null) {
+    if (!isEmpty_(node))
+      forEach(node.children, traverserTree_, { callback, context });
+    //
+    return node;
+  }
+  function traverserTree_(node, index, coll) {
+    this.callback.call(this.context, node, index, coll);
+    traverseTree_(node, this.callback, this.context);
+  }
+  function isEmpty_(node) {
+    return !node?.children?.length;
+  }
+  function omit_(object, ...fields) {
+    return Object.keys(object).reduce((accum, key) => {
+      if (!fields.includes(key)) accum[key] = object[key];
+      //
+      return accum;
+    }, {});
+  }
+  function load_(json, index, list) {
+    const { node, root, prev } = this;
+    //
+    const newNode = root.node({ value: omit_(json, "children") });
+    node.append(newNode);
+    //
+    if (!isEmpty_(json)) {
+      prev.push(node);
+      this.node = newNode;
+      return;
+    }
+    //
+    if (1 + index === list.length) {
+      this.node = prev.pop();
+    }
+  }
 })();
 
 export default tree;
+// module.exports = tree;
