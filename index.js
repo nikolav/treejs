@@ -7,7 +7,7 @@
  * public domain
  */
 
-const { nanoid } = require("nanoid");
+import { nanoid } from "nanoid";
 //
 const push_ = Function.prototype.call.bind(Array.prototype.push);
 const has_ = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
@@ -200,6 +200,16 @@ const tree = (function (none) {
     };
     toString = () => {
       return "" + this.value();
+    };
+
+    //
+    path = (andSelf = true) => {
+      let node = this;
+      const p = andSelf ? [node] : [];
+      //
+      while ((node = node.parent())) p.push(node);
+      //
+      return p.reverse();
     };
   }
 
