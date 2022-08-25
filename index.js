@@ -8,14 +8,24 @@
  */
 
 import { nanoid } from "nanoid";
-const idGen = () => nanoid();
+const idGen = nanoid;
 // const idGen = () => Math.random();
 
 //
-const push_ = Function.prototype.call.bind(Array.prototype.push);
-const has_ = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
-const forEach = Function.prototype.call.bind(Array.prototype.forEach);
+const fn = Function.prototype;
+const aproto = Array.prototype;
+const oproto = Object.prototype;
+//
+const push_ = fn.call.bind(aproto.push);
+const has_ = fn.call.bind(oproto.hasOwnProperty);
+const str_ = fn.call.bind(oproto.toString);
+const forEach = fn.call.bind(aproto.forEach);
+const isfn_ = (
+  (func) => (node) =>
+    func === str_(node)
+)(str_(fn));
 
+//
 const tree = (function (none) {
   const cache_ = {};
   const idcache_ = {};
@@ -70,9 +80,12 @@ const tree = (function (none) {
 
       return getid_(this);
     };
+    // pass function to calculate based on current
     value = (val) => {
       const c = cc(this);
-      return none !== val ? ((c.value = val), this) : c.value;
+      return none !== val
+        ? ((c.value = isfn_(val) ? val(c.value) : val), this)
+        : c.value;
     };
     next = () => {
       let next_ = null;
@@ -229,7 +242,6 @@ const tree = (function (none) {
 
       return match.node;
     };
-    //
   }
 
   class tree extends node {
@@ -248,20 +260,21 @@ const tree = (function (none) {
     };
 
     /*
-    {
-      fields..,
-      children[]?
-    }
-    */
-    json = (jsonObject) => {
-      const root = { children: [jsonObject] };
-      const route = {
+      {
+        fields..,
+        children[]?
+      }
+      */
+    json = (jsonObject, middleware = null) => {
+      const fromRoot = { children: [jsonObject] };
+      const context = {
         root: this,
         node: this,
         prev: [],
+        middleware,
       };
       //
-      traverseTree_(root, load_, route);
+      traverseTree_(fromRoot, load_, context);
       //
       return this;
     };
@@ -348,18 +361,21 @@ const tree = (function (none) {
     }, {});
   }
   function load_(json, index, list) {
-    const { node, root, prev } = this;
+    const { node, root, prev, middleware } = this;
+    const ll = list.length;
     //
     const newNode = root.node({ value: omit_(json, "children") });
     node.append(newNode);
     //
+    middleware && middleware.call(node, newNode, json);
+    //
     if (!isEmpty_(json)) {
-      prev.push(node);
+      if (1 < ll) prev.push(node);
       this.node = newNode;
       return;
     }
     //
-    if (1 + index === list.length) {
+    if (index === ll - 1) {
       this.node = prev.pop();
     }
   }
