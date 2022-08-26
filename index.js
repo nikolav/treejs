@@ -7,9 +7,9 @@
  * public domain
  */
 
-// import { nanoid } from "nanoid";
-// const idGen = nanoid;
-const idGen = () => Math.random();
+import { nanoid } from "nanoid";
+const idGen = nanoid;
+// const idGen = () => Math.random();
 
 //
 const fn = Function.prototype;
@@ -424,5 +424,5 @@ const tree = (function (none) {
   }
 })();
 
-// export default tree;
-module.exports = tree;
+export default tree;
+// module.exports = tree;
