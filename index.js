@@ -7,9 +7,9 @@
  * public domain
  */
 
-import { nanoid } from "nanoid";
-const idGen = nanoid;
-// const idGen = () => Math.random();
+// import { nanoid } from "nanoid";
+// const idGen = nanoid;
+const idGen = () => Math.random();
 
 //
 const fn = Function.prototype;
@@ -29,14 +29,14 @@ const isfn_ = (
 const tree = (function (none) {
   const cache_ = {};
   const idcache_ = {};
-
+  //
   const nodeInitDefaults_ = {
     id: none,
     root: null,
     value: none,
   };
 
-  const __CACHEID__ = "___";
+  const __CACHEID__ = "_cache";
 
   class node {
     constructor(config = {}) {
@@ -46,10 +46,11 @@ const tree = (function (none) {
 
       cache_[id] = {
         children: [],
-        id: none,
         parent: null,
         root: conf.root,
         value: conf.value,
+        id: none,
+        classes: {},
       };
 
       if (none !== conf.id) this.id(conf.id);
@@ -80,6 +81,39 @@ const tree = (function (none) {
 
       return getid_(this);
     };
+    //
+    // classes module
+    //  .classes
+    //  .hasClass
+    //  .addClass
+    //  .removeClass
+    //  .toggleClass
+    //  .byClass
+    classes = (cls = null) => {
+      const c = cc(this);
+      const { classes } = c;
+      return null != cls
+        ? ((c.classes = { ...classes, ...(isfn_(cls) ? cls(classes) : cls) }),
+          this)
+        : classes;
+    };
+    hasClass = (cls) => {
+      return true === this.classes()[cls];
+    };
+    addClass = (cls) => {
+      return this.classes({ [cls]: true });
+    };
+    removeClass = (cls) => {
+      return this.classes({ [cls]: false });
+    };
+    toggleClass = (cls) => {
+      return this.hasClass(cls) ? this.removeClass(cls) : this.addClass(cls);
+    };
+    byClass = (cls, collect = []) => {
+      return this.query(byClass_, collect, { cls });
+    };
+    //
+    //
     // pass function to calculate based on current
     value = (val) => {
       const c = cc(this);
@@ -182,6 +216,12 @@ const tree = (function (none) {
     eq = (i) => {
       const ls = lschildren_(this);
       return (0 <= i ? ls[i] : ls[this.len() + i]) || null;
+    };
+    first = () => {
+      return this.eq(0);
+    };
+    last = () => {
+      return this.eq(-1);
     };
     isplaced = () => {
       let node = this;
@@ -379,7 +419,10 @@ const tree = (function (none) {
       this.node = prev.pop();
     }
   }
+  function byClass_(node) {
+    return node.hasClass(this.cls);
+  }
 })();
 
-export default tree;
-// module.exports = tree;
+// export default tree;
+module.exports = tree;
