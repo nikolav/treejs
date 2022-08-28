@@ -7,10 +7,6 @@
  * public domain
  */
 
-import { nanoid } from "nanoid";
-const idGen = nanoid;
-// const idGen = () => Math.random();
-
 //
 const fn = Function.prototype;
 const aproto = Array.prototype;
@@ -26,6 +22,9 @@ const isfn_ = (
 )(str_(fn));
 
 //
+let ID = 1;
+const idGen = () => ID++;
+//
 const tree = (function (none) {
   const cache_ = {};
   const idcache_ = {};
@@ -36,7 +35,7 @@ const tree = (function (none) {
     value: none,
   };
 
-  const __CACHEID__ = "_cache";
+  const __CACHEID__ = "__";
 
   class node {
     constructor(config = {}) {
@@ -107,7 +106,7 @@ const tree = (function (none) {
       return this.classes({ [cls]: false });
     };
     toggleClass = (cls) => {
-      return this.hasClass(cls) ? this.removeClass(cls) : this.addClass(cls);
+      return this.classes((classes) => ({ [cls]: !classes[cls] }));
     };
     byClass = (cls, collect = []) => {
       return this.query(byClass_, collect, { cls });
@@ -282,6 +281,32 @@ const tree = (function (none) {
 
       return match.node;
     };
+    //
+    head = () => {
+      let node = this;
+      for (let p; (p = node.prev()); node = p);
+      //
+      return node;
+    };
+    //
+    tail = () => {
+      let node = this;
+      for (let n; (n = node.next()); node = n);
+      //
+      return node;
+    };
+    //
+    level = (andSelf = true) => {
+      const pt = this.parent();
+      const lvl = pt ? pt.ls() : [this];
+      return andSelf ? lvl : lvl.filter((sibling) => sibling !== this);
+    };
+    //
+    eachSibling = (callback, context, onBreak = false) => {
+      loop_(this.level(false), callback, context, onBreak);
+      //
+      return this;
+    };
   }
 
   class tree extends node {
@@ -354,15 +379,13 @@ const tree = (function (none) {
   function getidcache_(treeNode) {
     return idcache_[treeNode[__CACHEID__]];
   }
-  // function loop_(list, callback, context, onBreak = false) {
-  //   for (
-  //     let i = 0, len = list.length;
-  //     i < len && onBreak !== callback.call(context, list[i], i, list);
-  //     i++
-  //   );
-  //   //
-  //   return list;
-  // }
+  function loop_(list, callback, context, onBreak = false) {
+    for (
+      let i = 0, len = list.length;
+      i < len && onBreak !== callback.call(context, list[i], i, list);
+      i++
+    );
+  }
   function walk_(node, context) {
     let nextNode;
     const { callback, onBreak, thisContext } = context;
