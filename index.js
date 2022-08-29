@@ -114,12 +114,27 @@ const tree = (function (none) {
     //
     //
     // pass function to calculate based on current
-    value = (val) => {
-      const c = cc(this);
-      return none !== val
-        ? ((c.value = isfn_(val) ? val(c.value) : val), this)
-        : c.value;
-    };
+    value = (() => {
+      const value = (val) => {
+        const c = cc(this);
+        return none !== val
+          ? ((c.value = isfn_(val) ? val(c.value) : val), this)
+          : c.value;
+      };
+      //
+      value.merge = (val) => {
+        const c = cc(this);
+        const { value: currentValue } = c;
+        c.value = {
+          ...currentValue,
+          ...(isfn_(val) ? val(currentValue) : val),
+        };
+        //
+        return this;
+      };
+      //
+      return value;
+    })();
     next = () => {
       let next_ = null;
 
