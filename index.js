@@ -322,6 +322,13 @@ const tree = (function (none) {
       //
       return this;
     };
+    //
+    isHead: () => {
+      return this === this.head();
+    },
+    isTail: () => {
+      return this === this.tail();
+    },
   }
 
   class tree extends node {
