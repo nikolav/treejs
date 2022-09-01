@@ -323,12 +323,12 @@ const tree = (function (none) {
       return this;
     };
     //
-    isHead: () => {
+    isHead = () => {
       return this === this.head();
-    },
-    isTail: () => {
+    };
+    isTail = () => {
       return this === this.tail();
-    },
+    };
   }
 
   class tree extends node {
@@ -448,6 +448,7 @@ const tree = (function (none) {
   function load_(json, index, list) {
     const { node, root, prev, middleware } = this;
     const ll = list.length;
+    const isTail_ = index === ll - 1;
     //
     const newNode = root.node({ value: omit_(json, "children") });
     node.append(newNode);
@@ -455,12 +456,12 @@ const tree = (function (none) {
     middleware && middleware.call(node, newNode, json);
     //
     if (!isEmpty_(json)) {
-      if (1 < ll) prev.push(node);
+      if (1 < ll && !isTail_) prev.push(node);
       this.node = newNode;
       return;
     }
     //
-    if (index === ll - 1) {
+    if (isTail_) {
       this.node = prev.pop();
     }
   }
