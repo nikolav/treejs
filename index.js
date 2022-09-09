@@ -470,5 +470,5 @@ const tree = (function (none) {
   }
 })();
 
-export default tree;
-// module.exports = tree;
+// export default tree;
+module.exports = tree;
